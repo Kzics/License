@@ -1,0 +1,41 @@
+spring:
+  application:
+    name: kzics-license-server
+
+  datasource:
+    url: jdbc:postgresql://localhost:5432/kzics_license
+    username: ${DB_USERNAME:kzics}
+    password: ${DB_PASSWORD:kzics}
+    driver-class-name: org.postgresql.Driver
+
+  jpa:
+    hibernate:
+      ddl-auto: update
+    show-sql: false
+    properties:
+      hibernate:
+        dialect: org.hibernate.dialect.PostgreSQLDialect
+        format_sql: true
+
+  jackson:
+    serialization:
+      write-dates-as-timestamps: false
+
+server:
+  port: ${SERVER_PORT:8080}
+
+app:
+  jwt:
+    secret: ${JWT_SECRET:zNGGjCEl6*voUm#I8MR4vpE8r9V9L277AAH7PqDGc@61i70cS@8A*6omeZ45RWfl}
+    expiration-ms: 86400000  # 24h
+
+  admin:
+    username: ${ADMIN_USERNAME:admin}
+    password: ${ADMIN_PASSWORD:g0sLGyTEhlnJcVMYAMBtaeJ1HeMGWmzH}
+
+  heartbeat:
+    stale-threshold-seconds: 120  # Serveur considere offline apres 2 min sans heartbeat
+    cleanup-interval-seconds: 60  # Nettoyage toutes les minutes
+
+  cors:
+    allowed-origins: ${CORS_ORIGINS:http://localhost:5173,http://localhost:3000}

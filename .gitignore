@@ -1,0 +1,34 @@
+# Build output
+build/
+.gradle/
+*.class
+*.war
+
+# Ne pas exclure le wrapper Gradle (nécessaire pour builder sur le VPS)
+!gradle/wrapper/gradle-wrapper.jar
+!gradle/wrapper/gradle-wrapper.properties
+
+# Node / frontend
+frontend/node_modules/
+node_modules/
+frontend/dist/
+frontend/.vite/
+
+# IDE
+.idea/
+*.iml
+.vscode/
+
+# Logs
+*.log
+server.log
+server-err.log
+build_dashboard.txt
+build_output.txt
+
+# Scripts temporaires
+insert_free.sql
+run_sql.bat
+build_dashboard.bat
+sql_output.txt
+push_to_github.bat
