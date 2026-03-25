@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Kzics License Dashboard</title>
+  <title>Kzics Tracker Dashboard</title>
   <style>
     :root {
       --bg: #0d0d0d;
@@ -63,7 +63,7 @@
     main { padding: 28px; max-width: 1400px; margin: 0 auto; }
 
     /* ── Stats cards ── */
-    .stats-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 16px; margin-bottom: 28px; }
+    .stats-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 16px; margin-bottom: 28px; }
     .stat-card {
       background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); padding: 20px;
     }
@@ -163,8 +163,8 @@
 <!-- LOGIN -->
 <div id="login-page">
   <div class="login-box">
-    <h1>🔐 Kzics License</h1>
-    <p>Connectez-vous pour accéder au dashboard admin.</p>
+    <h1>Kzics Tracker</h1>
+    <p>Connectez-vous pour acceder au dashboard admin.</p>
     <div class="field">
       <label>Identifiant</label>
       <input id="username" type="text" placeholder="admin" autocomplete="username" />
@@ -181,10 +181,10 @@
 <!-- DASHBOARD -->
 <div id="dashboard">
   <header>
-    <h1>⚡ Kzics License Dashboard</h1>
+    <h1>Kzics Tracker Dashboard</h1>
     <div style="display:flex;align-items:center;gap:16px">
       <span id="last-refresh">—</span>
-      <button class="logout-btn" onclick="logout()">Déconnexion</button>
+      <button class="logout-btn" onclick="logout()">Deconnexion</button>
     </div>
   </header>
 
@@ -200,11 +200,6 @@
         <div class="label">Joueurs en ligne</div>
         <div class="value purple" id="stat-players">—</div>
         <div class="sub">sur tous les serveurs</div>
-      </div>
-      <div class="stat-card">
-        <div class="label">Licences actives</div>
-        <div class="value" id="stat-active-lic">—</div>
-        <div class="sub" id="stat-total-lic-sub">— au total</div>
       </div>
     </div>
 
@@ -233,7 +228,7 @@
             <th>Plugin ver.</th>
             <th>Joueurs</th>
             <th>RAM</th>
-            <th>Licence</th>
+            <th>Uptime</th>
             <th>Vu il y a</th>
           </tr>
         </thead>
@@ -249,7 +244,7 @@
 <div class="modal-overlay" id="modal-overlay" onclick="closeModal(event)">
   <div class="modal">
     <div class="modal-header">
-      <h3 id="modal-title">Détail serveur</h3>
+      <h3 id="modal-title">Detail serveur</h3>
       <button class="close-btn" onclick="closeModal()">×</button>
     </div>
     <div class="modal-body" id="modal-body">
@@ -303,7 +298,7 @@
     document.getElementById('login-page').style.display = 'none';
     document.getElementById('dashboard').style.display = 'block';
     loadData();
-    setInterval(loadData, 30000); // auto-refresh toutes les 30s
+    setInterval(loadData, 30000);
   }
 
   if (token) showDashboard();
@@ -328,7 +323,7 @@
       renderStats(stats);
       allServers = servers;
       renderServers(servers);
-      document.getElementById('last-refresh').textContent = 'Actualisé à ' + new Date().toLocaleTimeString();
+      document.getElementById('last-refresh').textContent = 'Actualise a ' + new Date().toLocaleTimeString();
     } catch (e) {
       console.error('loadData error', e);
     }
@@ -339,8 +334,6 @@
     document.getElementById('stat-online').textContent = stats.totalServersOnline;
     document.getElementById('stat-total-sub').textContent = (allServers.length || '—') + ' au total';
     document.getElementById('stat-players').textContent = stats.totalPlayersOnline;
-    document.getElementById('stat-active-lic').textContent = stats.activeLicenses;
-    document.getElementById('stat-total-lic-sub').textContent = stats.totalLicenses + ' au total';
 
     const row = document.getElementById('products-row');
     row.innerHTML = (stats.productBreakdown || []).map(p => `
@@ -368,7 +361,7 @@
       : servers.filter(s => s.status === currentFilter);
 
     if (filtered.length === 0) {
-      tbody.innerHTML = '<tr class="empty-row"><td colspan="9">Aucun serveur trouvé.</td></tr>';
+      tbody.innerHTML = '<tr class="empty-row"><td colspan="9">Aucun serveur trouve.</td></tr>';
       return;
     }
 
@@ -393,13 +386,12 @@
             </div>
             <span style="font-size:.75rem;color:var(--muted);margin-left:6px">${s.usedMemoryMb}M</span>
           </td>
-          <td style="font-size:.8rem;color:var(--muted)">${s.licenseOwner || '—'}</td>
+          <td style="font-size:.8rem;color:var(--muted)">${formatUptime(s.uptimeMs)}</td>
           <td style="font-size:.8rem;color:var(--muted)">${timeAgo(s.lastSeen)}</td>
         </tr>
       `;
     }).join('');
 
-    // mise à jour du sous-titre
     document.getElementById('stat-total-sub').textContent = servers.length + ' au total';
   }
 
@@ -422,11 +414,10 @@
         ['Version plugin', s.pluginVersion],
         ['Java',           s.javaVersion],
         ['OS',             s.osName],
-        ['RAM utilisée',   `${s.usedMemoryMb} Mo / ${s.maxMemoryMb} Mo`],
+        ['RAM utilisee',   `${s.usedMemoryMb} Mo / ${s.maxMemoryMb} Mo`],
         ['TPS',            s.tps ? s.tps.toFixed(1) : '—'],
         ['Mode online',    s.onlineMode ? 'Oui' : 'Non'],
-        ['Licence owner',  s.licenseOwner],
-        ['Clé (masquée)',  s.licenseKey],
+        ['Uptime',         formatUptime(s.uptimeMs)],
         ['Premier vu',     fmtDate(s.firstSeen)],
         ['Dernier vu',     fmtDate(s.lastSeen)],
       ];
@@ -434,7 +425,7 @@
       const history = data.history || [];
       const histHtml = history.length === 0
         ? '<p style="color:var(--muted);font-size:.85rem">Aucun historique disponible.</p>'
-        : `<p class="history-title">Heartbeats (24h) — ${history.length} entrée(s)</p>
+        : `<p class="history-title">Heartbeats (24h) — ${history.length} entree(s)</p>
            <ul class="history-list">
              ${history.slice().reverse().slice(0, 50).map(h => `
                <li>
@@ -467,7 +458,7 @@
 
   // ── Helpers ───────────────────────────────────────────────────────────────
   function statusLabel(s) {
-    return s === 'ONLINE' ? 'En ligne' : s === 'OFFLINE' ? 'Hors ligne' : 'Arrêté';
+    return s === 'ONLINE' ? 'En ligne' : s === 'OFFLINE' ? 'Hors ligne' : 'Arrete';
   }
 
   function timeAgo(iso) {
@@ -478,6 +469,18 @@
     if (s < 3600) return Math.floor(s / 60) + 'min';
     if (s < 86400) return Math.floor(s / 3600) + 'h';
     return Math.floor(s / 86400) + 'j';
+  }
+
+  function formatUptime(ms) {
+    if (!ms || ms <= 0) return '—';
+    const s = Math.floor(ms / 1000);
+    if (s < 60) return s + 's';
+    if (s < 3600) return Math.floor(s / 60) + 'min';
+    const h = Math.floor(s / 3600);
+    const m = Math.floor((s % 3600) / 60);
+    if (h < 24) return h + 'h ' + m + 'min';
+    const d = Math.floor(h / 24);
+    return d + 'j ' + (h % 24) + 'h';
   }
 
   function fmtDate(iso) {

@@ -16,6 +16,8 @@ public interface ServerInstanceRepository extends JpaRepository<ServerInstance, 
 
     Optional<ServerInstance> findByLicenseIdAndServerIpAndServerPort(UUID licenseId, String serverIp, int serverPort);
 
+    Optional<ServerInstance> findByProductIdAndServerIpAndServerPort(String productId, String serverIp, int serverPort);
+
     List<ServerInstance> findByStatus(ServerStatus status);
 
     List<ServerInstance> findByProductId(String productId);
@@ -23,7 +25,7 @@ public interface ServerInstanceRepository extends JpaRepository<ServerInstance, 
     @Query("SELECT s FROM ServerInstance s WHERE s.status = 'ONLINE'")
     List<ServerInstance> findAllOnline();
 
-    @Query("SELECT s FROM ServerInstance s JOIN FETCH s.license WHERE s.status = 'ONLINE'")
+    @Query("SELECT s FROM ServerInstance s WHERE s.status = 'ONLINE'")
     List<ServerInstance> findAllOnlineWithLicense();
 
     @Modifying

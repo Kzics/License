@@ -6,7 +6,6 @@ import fr.kzics.licenseserver.entity.HeartbeatLog;
 import fr.kzics.licenseserver.entity.ServerInstance;
 import fr.kzics.licenseserver.entity.ServerInstance.ServerStatus;
 import fr.kzics.licenseserver.repository.HeartbeatLogRepository;
-import fr.kzics.licenseserver.repository.LicenseRepository;
 import fr.kzics.licenseserver.repository.ServerInstanceRepository;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -24,39 +23,27 @@ public class HeartbeatService {
 
     private final ServerInstanceRepository serverRepo;
     private final HeartbeatLogRepository heartbeatLogRepo;
-    private final LicenseRepository licenseRepo;
 
     public HeartbeatService(ServerInstanceRepository serverRepo,
-                            HeartbeatLogRepository heartbeatLogRepo,
-                            LicenseRepository licenseRepo) {
+                            HeartbeatLogRepository heartbeatLogRepo) {
         this.serverRepo = serverRepo;
         this.heartbeatLogRepo = heartbeatLogRepo;
-        this.licenseRepo = licenseRepo;
     }
 
     /**
      * Traite un heartbeat entrant.
-     * Cree ou met a jour le ServerInstance, et enregistre un log pour les graphiques.
+     * Identifie le serveur par (productId, serverIp, serverPort) — pas besoin de licence.
      */
     @Transactional
     public void processHeartbeat(HeartbeatRequest request, boolean isShutdown) {
-        var licenseOpt = licenseRepo.findByLicenseKeyAndProductId(request.licenseKey(), request.productId());
-        if (licenseOpt.isEmpty()) {
-            log.warn("Heartbeat recu avec une licence invalide: product={}, ip={}",
-                    request.productId(), request.serverIp());
-            return;
-        }
-
-        var license = licenseOpt.get();
-        var serverOpt = serverRepo.findByLicenseIdAndServerIpAndServerPort(
-                license.getId(), request.serverIp(), request.serverPort());
+        var serverOpt = serverRepo.findByProductIdAndServerIpAndServerPort(
+                request.productId(), request.serverIp(), request.serverPort());
 
         ServerInstance server;
         if (serverOpt.isPresent()) {
             server = serverOpt.get();
         } else {
             server = ServerInstance.builder()
-                    .license(license)
                     .serverIp(request.serverIp())
                     .serverPort(request.serverPort())
                     .productId(request.productId())
@@ -123,14 +110,12 @@ public class HeartbeatService {
     }
 
     /**
-     * Recupere les statistiques globales.
+     * Recupere les statistiques globales (sans licences).
      */
     @Transactional(readOnly = true)
     public StatsResponse getStats() {
         long totalOnline = serverRepo.countOnline();
         long totalPlayers = serverRepo.totalOnlinePlayers();
-        long totalLicenses = licenseRepo.count();
-        long activeLicenses = licenseRepo.countByActive(true);
 
         // Breakdown par produit
         var productIds = serverRepo.findDistinctProductIds();
@@ -144,7 +129,7 @@ public class HeartbeatService {
             breakdown.add(new StatsResponse.ProductStats(productId, serverCount, playerCount));
         }
 
-        return new StatsResponse(totalOnline, totalPlayers, totalLicenses, activeLicenses, breakdown);
+        return new StatsResponse(totalOnline, totalPlayers, breakdown);
     }
 
     @Transactional(readOnly = true)

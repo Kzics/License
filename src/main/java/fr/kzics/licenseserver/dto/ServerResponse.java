@@ -23,8 +23,6 @@ public record ServerResponse(
         long uptimeMs,
         String productId,
         String status,
-        String licenseOwner,
-        String licenseKey,
         Instant firstSeen,
         Instant lastSeen
 ) {
@@ -48,15 +46,8 @@ public record ServerResponse(
                 s.getUptimeMs(),
                 s.getProductId(),
                 s.getStatus().name(),
-                s.getLicense() != null ? s.getLicense().getOwner() : "unknown",
-                s.getLicense() != null ? maskKey(s.getLicense().getLicenseKey()) : "unknown",
                 s.getFirstSeen(),
                 s.getLastSeen()
         );
-    }
-
-    private static String maskKey(String key) {
-        if (key == null || key.length() < 8) return "****";
-        return key.substring(0, 4) + "****" + key.substring(key.length() - 4);
     }
 }

@@ -8,7 +8,7 @@ import java.util.UUID;
 
 @Entity
 @Table(name = "server_instances",
-       uniqueConstraints = @UniqueConstraint(columnNames = {"license_id", "server_ip", "server_port"}))
+       uniqueConstraints = @UniqueConstraint(columnNames = {"product_id", "server_ip", "server_port"}))
 @Getter @Setter
 @NoArgsConstructor @AllArgsConstructor
 @Builder
@@ -19,7 +19,7 @@ public class ServerInstance {
     private UUID id;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "license_id", nullable = false)
+    @JoinColumn(name = "license_id", nullable = true)
     private License license;
 
     @Column(name = "server_ip", nullable = false, length = 128)

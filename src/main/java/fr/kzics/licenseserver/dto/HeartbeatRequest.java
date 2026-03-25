@@ -4,7 +4,7 @@ import jakarta.validation.constraints.NotBlank;
 
 public record HeartbeatRequest(
         @NotBlank String productId,
-        @NotBlank String licenseKey,
+        String licenseKey,
         @NotBlank String serverIp,
         int serverPort,
         String motd,
