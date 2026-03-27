@@ -27,7 +27,7 @@ server:
 app:
   jwt:
     secret: ${JWT_SECRET:zNGGjCEl6*voUm#I8MR4vpE8r9V9L277AAH7PqDGc@61i70cS@8A*6omeZ45RWfl}
-    expiration-ms: 86400000  # 24h
+    expiration-ms: 2592000000  # 30 jours
 
   admin:
     username: ${ADMIN_USERNAME:admin}
